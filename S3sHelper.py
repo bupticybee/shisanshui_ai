@@ -48,7 +48,14 @@ class S3sHelper():
                     Card.new(i) for i in one_cards[8:13]
                 ],[])
             ]
-            ret_cards.append({"cards":one_cards,"ranks":ranks})
+            flag = False
+            for each in ret_cards:
+                each_ranks = each["ranks"]
+                if ranks[0] >= each_ranks[0] and ranks[1] >= each_ranks[1] and ranks[2] >= each_ranks[2]:
+                    flag = True
+                    break
+            if not flag:
+                ret_cards.append({"cards":one_cards,"ranks":ranks,"duns":[1,1,1]})
 
         return ret_cards
 
