@@ -2,6 +2,8 @@ import numpy as np
 import s3spy
 import deuces
 from deuces import Card, Evaluator, Deck
+from deuces.lookup import LookupTable
+import itertools
 
 class S3sHelper():
     def __init__(self):
@@ -48,6 +50,26 @@ class S3sHelper():
                     Card.new(i) for i in one_cards[8:13]
                 ],[])
             ]
+            # check 前墩中墩后墩是否符合大小关系
+            if ranks[1] < ranks[2]:
+                continue
+
+            if ranks[1] > LookupTable.MAX_STRAIGHT:
+                # rank 比三个少
+                if ranks[1] <= LookupTable.MAX_TWO_PAIR and ranks[1] > LookupTable.MAX_THREE_OF_A_KIND:
+                    if ranks[0] < 13:
+                        continue
+                else:
+                    rank_second_dun_as_first = min([
+                                                   self.evaluator.evaluate_three([
+                                                       Card.new(j) for j in i
+                                                   ],[])
+                                                   for i in
+                        itertools.combinations(one_cards[3:8],3)]
+                    )
+                    if ranks[0] <= rank_second_dun_as_first:
+                        continue
+
             flag = False
             for each in ret_cards:
                 each_ranks = each["ranks"]
