@@ -90,6 +90,7 @@ py::array_t<uint8_t> getS3Sarr(py::array_t<uint8_t> xs,bool test){
     }
     //手牌牌型分析结果
     S13S::CGameLogic::handinfo_t	handInfos;
+    S13S::CGameLogic::SortCards(&(handCards)[0], MAX_COUNT, true, true, true);
     int c = S13S::CGameLogic::AnalyseHandCards(&(handCards)[0], MAX_COUNT, enum_group_sz, handInfos);
 
     if(test)handInfos.PrintEnumCards();
