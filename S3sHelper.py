@@ -14,13 +14,13 @@ class S3sHelper():
             0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x48,0x49,0x4A,0x4B,0x4C,0x4D, # 黑桃 A - K
         ]
 
-        cardstr = []
+        self.cardstr = []
         for color in "dchs":
             for rank in "A23456789TJQK":
-                cardstr.append(rank + color)
+                self.cardstr.append(rank + color)
 
-        self.hackcode2cardstr = dict(zip(hackcode,cardstr))
-        self.cardstr2hackcode = dict(zip(cardstr,hackcode))
+        self.hackcode2cardstr = dict(zip(hackcode,self.cardstr))
+        self.cardstr2hackcode = dict(zip(self.cardstr,hackcode))
         self.evaluator = Evaluator()
 
     def get_candidate(self,cards):
@@ -75,11 +75,37 @@ class S3sHelper():
                 each_ranks = each["ranks"]
                 if ranks[0] >= each_ranks[0] and ranks[1] >= each_ranks[1] and ranks[2] >= each_ranks[2]:
                     flag = True
-                    break
+                elif ranks[0] < each_ranks[0] and ranks[1] < each_ranks[1] and ranks[2] < each_ranks[2]:
+                    each["del"] = True
             if not flag:
                 ret_cards.append({"cards":one_cards,"ranks":ranks,"duns":[1,1,1]})
+            ret_cards = [x for x in ret_cards if "del" not in x]
 
         return ret_cards
+
+    def _cfr_iter(self,cand1,cand2):
+        ev = 0
+
+    def get_strategy(self,p1_cards,p2_cards):
+        cand1 = self.get_candidate(p1_cards)
+        cand2 = self.get_candidate(p2_cards)
+        for each in cand1:
+            each["cfr"] = {
+                "regret+" : 0,
+                "cum_regret+" : 0,
+                "strategy": 1.0 / float(len(cand1)),
+            }
+        for each in cand2:
+            each["cfr"] = {
+                "regret+" : 0,
+                "cum_regret+" : 0,
+                "strategy": 1.0 / float(len(cand2)),
+            }
+
+        for i in range(10):
+            self._cfr_iter(cand1,cand2)
+            self._cfr_iter(cand2,cand1)
+
 
 
 
