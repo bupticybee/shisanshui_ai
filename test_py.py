@@ -23,4 +23,12 @@ random.shuffle(cards)
 p1_cards = cards[:13]
 p2_cards = cards[13:26]
 
-print(s3shelper.get_strategy(p1_cards,p2_cards))
+strategy1, strategy2 = s3shelper.get_strategy(p1_cards,p2_cards)
+
+print("=" * 20 + "STRATEGY 1" + "=" * 20)
+for one_strategy in strategy1:
+    print(one_strategy)
+
+print("=" * 20 + "STRATEGY 2" + "=" * 20)
+for one_strategy in strategy2:
+    print(one_strategy)

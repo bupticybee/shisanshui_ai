@@ -83,29 +83,70 @@ class S3sHelper():
 
         return ret_cards
 
-    def _cfr_iter(self,cand1,cand2):
+    def _cfr_iter(self,cand1,cand2,iter_num):
         ev = 0
+
+        for one_cand1 in cand1:
+            cand1_strategy = one_cand1["cfr"]["strategy"]
+            cand1_ranks = one_cand1["ranks"]
+            cand1_duns = one_cand1["duns"]
+
+            cand1_ev = 0
+            total_prob = 0
+            for one_cand2 in cand2:
+                cand2_strategy = one_cand2["cfr"]["strategy"]
+                cand2_ranks = one_cand2["ranks"]
+                cand2_duns = one_cand2["duns"]
+                one_ev = 0
+                for rk1,rk2,dk1,dk2 in zip(cand1_ranks,cand2_ranks,cand1_duns,cand2_duns):
+                    if rk1 < rk2:
+                        one_ev += dk1
+                    elif rk1 > rk2:
+                        one_ev -= dk2
+
+                cand1_ev += one_ev * cand2_strategy
+                total_prob += cand2_strategy
+            assert(np.isclose(total_prob,1))
+            one_cand1["cfr"]["ev"] = cand1_ev
+            ev += cand1_ev * cand1_strategy
+
+
+        total_cum_regretp = 0
+        for one_cand1 in cand1:
+            cfr_cand1 = one_cand1["cfr"]
+            regret = cfr_cand1["ev"] - ev
+            cfr_cand1["cum_regret+"] = max(cfr_cand1["cum_regret+"] + regret,0)
+            total_cum_regretp += cfr_cand1["cum_regret+"]
+
+        for one_cand1 in cand1:
+            cfr_cand1 = one_cand1["cfr"]
+            if total_cum_regretp == 0:
+                cfr_cand1["strategy"] = 1.0 / float(len(cand1))
+            else:
+                cfr_cand1["strategy"] = cfr_cand1["cum_regret+"] / total_cum_regretp
+
+
 
     def get_strategy(self,p1_cards,p2_cards):
         cand1 = self.get_candidate(p1_cards)
         cand2 = self.get_candidate(p2_cards)
         for each in cand1:
             each["cfr"] = {
-                "regret+" : 0,
                 "cum_regret+" : 0,
                 "strategy": 1.0 / float(len(cand1)),
             }
         for each in cand2:
             each["cfr"] = {
-                "regret+" : 0,
                 "cum_regret+" : 0,
                 "strategy": 1.0 / float(len(cand2)),
             }
 
-        for i in range(10):
-            self._cfr_iter(cand1,cand2)
-            self._cfr_iter(cand2,cand1)
 
+        for i in range(100):
+            self._cfr_iter(cand1,cand2,i+1)
+            self._cfr_iter(cand2,cand1,i+1)
+
+        return cand1,cand2
 
 
 
