@@ -83,6 +83,23 @@ class S3sHelper():
 
         return ret_cards
 
+    def get_result(self,one_cand1,one_cand2):
+        cand1_strategy = one_cand1["cfr"]["strategy"]
+        cand1_ranks = one_cand1["ranks"]
+        cand1_duns = one_cand1["duns"]
+
+        cand2_strategy = one_cand2["cfr"]["strategy"]
+        cand2_ranks = one_cand2["ranks"]
+        cand2_duns = one_cand2["duns"]
+        one_ev = 0
+        for rk1,rk2,dk1,dk2 in zip(cand1_ranks,cand2_ranks,cand1_duns,cand2_duns):
+            if rk1 < rk2:
+                one_ev += dk1
+            elif rk1 > rk2:
+                one_ev -= dk2
+        return one_ev
+
+
     def _cfr_iter(self,cand1,cand2,iter_num):
         ev = 0
 
