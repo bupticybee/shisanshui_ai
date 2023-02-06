@@ -42,6 +42,7 @@ class Evaluator(object):
         cards = cards + board
         assert(len(cards) == 3)
         cards = [(12 - Card.get_rank_int(i)) for i in (cards + board)]
+        cards = sorted(cards,reverse = True)
         if len(set(cards)) == 1:
             return cards[0]
         elif len(set(cards)) == 2:
