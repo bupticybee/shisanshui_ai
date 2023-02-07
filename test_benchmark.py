@@ -15,7 +15,20 @@ for i in tqdm.tqdm(range(1000)):
     p1_cards = cards[:13]
     p2_cards = cards[13:26]
 
-    strategy1, strategy2 = s3shelper.get_strategy(p1_cards,p2_cards)
+    fake_cards = cards[13:]
+    random.shuffle(fake_cards)
+    fake_cards = fake_cards[:13]
+    strategy1, _ = s3shelper.get_strategy(p1_cards,fake_cards)
+    for i in range(10):
+        fake_cards = cards[13:]
+        random.shuffle(fake_cards)
+        fake_cards = fake_cards[:13]
+        s_strategy1, _ = s3shelper.get_strategy(p1_cards,fake_cards)
+        assert(len(s_strategy1) == len(strategy1))
+        for x in range(len(s_strategy1)):
+            strategy1[x]["cfr"]["strategy"] += s_strategy1[x]["cfr"]["strategy"]
+
+    _, strategy2 = s3shelper.get_strategy(p1_cards,p2_cards)
 
     ind = np.argmax([x["cfr"]["strategy"] for x in strategy1])
 
