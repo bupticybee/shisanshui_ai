@@ -2,7 +2,7 @@ FROM python:3.6
 WORKDIR /app
 ADD . .
 RUN pip  install -r requirements.txt --index-url http://pypi.douban.com/simple/ --trusted-host pypi.douban.com/simple
-RUN wget https://cmake.org/files/v3.17/cmake-3.17.0-Linux-x86_64.tar.gz \
+RUN mv resources/cmake-3.17.0-Linux-x86_64.tar.gz . \
     && tar -zxvf cmake-3.17.0-Linux-x86_64.tar.gz \
     && mv cmake-3.17.0-Linux-x86_64 cmake-3.17.0 \
     && ln -sf /cmake-3.17.0/bin/* /usr/bin
