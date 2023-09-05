@@ -13,13 +13,13 @@
 编译容器
 
 ```bash
-docker build -t s3s_py:0.1 .
+docker build -t s3s_origin:0.1 .
 ```
 
 在容器中运行
 
 ```bash
-docker run -it s3s_py:0.1 /bin/bash
+docker run -it s3s_origin:0.1 /bin/bash
 python3 test_benchmark.py
 ```
 

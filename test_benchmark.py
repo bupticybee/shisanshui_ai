@@ -8,6 +8,9 @@ import tqdm
 
 s3shelper = S3sHelper()
 
+def print_strategy_with_g(input_cards,initial_cards):
+    return [(i if i in initial_cards else f"{i}(g)") for i in input_cards]
+
 evs = []
 for i in tqdm.tqdm(range(100)):
     cards = s3shelper.cardstr[:]
@@ -20,10 +23,12 @@ for i in tqdm.tqdm(range(100)):
     fake_cards = cards[13:]
     random.shuffle(fake_cards)
 
-    # P1的策略使用类似 Deterministic MCTS的思路来解决 十三水中的不完全信息问题。会和那是均衡有偏离，
+    # P1的策略使用类似 Deterministic MCTS的思路来解决 十三水中的不完全信息问题。会和纳什均衡有偏离，
     # 但是于完全的CFR相比，节省了大量的算力
 
     fake_cards = fake_cards[:13]
+
+    start = time.time()
     strategy1, _ = s3shelper.get_strategy(p1_cards,fake_cards)
 
     # 使用n = 10 的 Deterministic MCTS ， 理论上越大越好。 但是越大计算时间越久
@@ -41,6 +46,8 @@ for i in tqdm.tqdm(range(100)):
     random.shuffle(fake_cards)
     _, strategy2 = s3shelper.get_strategy(fake_cards[:13],p2_cards)
 
+    end = time.time()
+
     ind_p1 = np.argmax([x["cfr"]["strategy"] for x in strategy1])
     ind_p2 = np.argmax([x["cfr"]["strategy"] for x in strategy2])
 
@@ -49,6 +56,18 @@ for i in tqdm.tqdm(range(100)):
 
     one_ev = s3shelper.get_result(card1,card2)
     evs.append(one_ev)
+
+    ind = np.argmax([x["cfr"]["strategy"] for x in strategy1])
+    card1 = strategy1[ind]
+    output_strategy = card1["cards"]
+
+    time_spend = end - start
+    print("=" * 30)
+    print("输入卡牌:",p1_cards)
+    print(f"AI耗时:{time_spend:.2f}s")
+    print("AI排列:",print_strategy_with_g(output_strategy[:3],p1_cards),
+          print_strategy_with_g(output_strategy[3:8],p1_cards),
+          print_strategy_with_g(output_strategy[8:],p1_cards))
 
 wins = [1 if i > 0 else 0 for i in evs]
 
